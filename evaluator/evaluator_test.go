@@ -112,13 +112,106 @@ func TestIfElseExpression(t *testing.T) {
 	}
 }
 
+func TestReturnStatements(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"return 10;", 10},
+		{"return 10; 9;", 10},
+		{"return 2 * 5; 9;", 10},
+		{"9; return 2 * 5; 9;", 10},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testIntegerObject(t, evaluated, tt.expected)
+	}
+}
+
+func TestErrorHandling(t *testing.T) {
+	tests := []struct {
+		input           string
+		expectedMessage string
+	}{
+		{
+			"5 + good;",
+			"type mismatch: INTEGER + BOOLEAN",
+		},
+		{
+			"5 + good; 5;",
+			"type mismatch: INTEGER + BOOLEAN",
+		},
+		{
+			"-good",
+			"unknown operator: -BOOLEAN",
+		},
+		{
+			"good + bad;",
+			"unknown operator: BOOLEAN + BOOLEAN",
+		},
+		{
+			"5; good + bad; 5",
+			"unknown operator: BOOLEAN + BOOLEAN",
+		},
+		{
+			"if (10 > 1) { good + bad; }",
+			"unknown operator: BOOLEAN + BOOLEAN",
+		},
+		{
+			`if (10 > 1) {
+				if (10 > 1) {
+					return good + bad;
+				}
+				return 1;
+			}`,
+			"unknown operator: BOOLEAN + BOOLEAN",
+		},
+		{
+			"foobar",
+			"identifier not found: foobar",
+		},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+
+		errObj, ok := evaluated.(*object.Error)
+
+		if !ok {
+			t.Errorf("no error object returned. got=%T(%+v)", evaluated, evaluated)
+			continue
+		}
+
+		if errObj.Message != tt.expectedMessage {
+			t.Errorf("wrong error message. expected=%q, got=%q", tt.expectedMessage, errObj.Message)
+		}
+	}
+}
+
+func TestLetStatements(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"$a = 5; a;", 5},
+		{"$a = 5 * 5; a;", 25},
+		{"$a = 5; $b = a; b;", 5},
+		{"$a = 5; $b = a; $c = a + b + 5; c;", 15},
+	}
+	for _, tt := range tests {
+		testIntegerObject(t, testEval(tt.input), tt.expected)
+	}
+}
+
 func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)
+	env := object.NewEnvironment()
 
 	program := p.ParseProgram()
 
-	return Eval(program)
+	return Eval(program, env)
 }
 
 func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
