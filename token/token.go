@@ -30,6 +30,7 @@ const (
 	EOF     = "EOF"
 	IDENT   = "IDENT"
 	INT     = "INT"
+	STRING  = "STRING"
 
 	ASSIGN   = "="
 	PLUS     = "+"
@@ -46,6 +47,9 @@ const (
 
 	LBRACE = "{"
 	RBRACE = "}"
+
+	LBRACKET = "["
+	RBRACKET = "]"
 
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
