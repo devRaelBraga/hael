@@ -1,9 +1,4 @@
-$a = if(good) {
-    return bad
-    good
-} else {
-    bad
-}
-
-5;
-good;
+listenHTTP("3000",{
+    "/": ==>() {parseHTML("index.html")},
+    "/about": ==>() {parseHTML("about.html")}
+})
