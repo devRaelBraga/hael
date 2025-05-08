@@ -1,0 +1,7 @@
+listenHTTP("3000",{
+    "/": ==>(req) { return parseHTML("index.html") },
+    "/about": ==>(req) { return parseHTML("about.html") },
+    "/interpreter": ==>(req) { return parseHTML("interpreter.html") },
+    "/wasm/monkey.wasm": ==>(req) { return parseHTML("wasm/monkey.wasm") },
+    "/wasm/wasm_exec.js": ==>(req) { return parseHTML("wasm/wasm_exec.js") }
+})
