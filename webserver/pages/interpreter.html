@@ -248,7 +248,7 @@
             }
         }
 
-        WebAssembly.instantiateStreaming(fetch('/wasm/monkey.wasm'), go.importObject)
+        WebAssembly.instantiateStreaming(fetch('/wasm/hael.wasm'), go.importObject)
             .then(result => {
                 go.run(result.instance);
                 document.getElementById('output').textContent = 'Enter code and click Run Code.';
