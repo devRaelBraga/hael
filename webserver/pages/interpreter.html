@@ -62,6 +62,7 @@
             background-color: #ffffff;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-height: 72vh;
         }
 
         section h2 {
@@ -194,7 +195,7 @@
             <h1>Hael Language</h1>
             <nav>
                 <a href="/">Home</a>
-                <a href="/interpreter">Interpreter</a>
+                <a href="/interpreter">Online Interpreter</a>
                 <a href="/about">About</a>
             </nav>
         </div>
@@ -227,7 +228,7 @@
         const go = new Go();
         let outputBuffer = [];
 
-        // Função para capturar saídas de puts
+
         window.captureOutput = function(output) {
             outputBuffer.push(output);
         };
@@ -237,10 +238,10 @@
             if (code == "") {
                 return
             }
-            outputBuffer = []; // Limpa o buffer para nova execução
+            outputBuffer = [];
             try {
                 const result = await window.evaluateCode(code);
-                // Concatena saídas de puts com o resultado
+
                 const output = outputBuffer.join('\n') + (outputBuffer.length > 0 ? '\n' : '') + (result != "null" ? result : "");
                 document.getElementById('output').textContent = output;
             } catch (err) {

@@ -87,6 +87,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalBlockStatement(node, env)
 	case *ast.IfExpression:
 		return evalIfExpression(node, env)
+	case *ast.WhileExpression:
+		return evalWhileExpression(node, env)
 	case *ast.ReturnStatement:
 		val := Eval(node.ReturnValue, env)
 		if isError(val) {
@@ -195,6 +197,21 @@ func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Obje
 		return Eval(ie.Consequence, env)
 	} else if ie.Alternative != nil {
 		return Eval(ie.Alternative, env)
+	} else {
+		return NULL
+	}
+}
+
+func evalWhileExpression(ie *ast.WhileExpression, env *object.Environment) object.Object {
+	condition := Eval(ie.Condition, env)
+
+	if isError(condition) {
+		return condition
+	}
+
+	if isTruthy(condition) {
+		Eval(ie.Consequence, env)
+		return Eval(ie, env)
 	} else {
 		return NULL
 	}

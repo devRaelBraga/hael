@@ -15,7 +15,7 @@ func TestLetStatements(t *testing.T) {
 		expectedValue      interface{}
 	}{
 		{"$x = 5;", "x", 5},
-		{"$y = true;", "y", true},
+		{"$y = good;", "y", true},
 		{"$foobar = y;", "foobar", "y"},
 	}
 
@@ -611,6 +611,65 @@ func TestIfExpression(t *testing.T) {
 	}
 
 	if !testIdentifier(t, consequence.Expression, "x") {
+		return
+	}
+}
+
+func TestWhileExpression(t *testing.T) {
+	input := `$i = 0
+	
+	while(i < 5) {
+		print(i);
+		$i = i + 1;
+	}`
+
+	l := lexer.New(input)
+	p := New(l)
+
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 2 {
+		t.Fatalf("program.Body does not contain %d statements. got=%d", 2, len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[1].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[1] is not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+
+	exp, ok := stmt.Expression.(*ast.WhileExpression)
+
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.WhileExpression. got=%T", stmt.Expression)
+	}
+
+	if !testInfixExpression(t, exp.Condition, "i", "<", 5) {
+		return
+	}
+
+	if len(exp.Consequence.Statements) != 2 {
+		t.Errorf("consequence is not 2 statements. got=%d\n", len(exp.Consequence.Statements))
+	}
+
+	consequenceOne, ok := exp.Consequence.Statements[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("Statements[0] is not ast.ExpressionStatement. got=%T", exp.Consequence.Statements[0])
+	}
+
+	if consequenceOne.String() != "print(i)" {
+		return
+	}
+
+	consequenceTwo, ok := exp.Consequence.Statements[1].(*ast.LetStatement)
+
+	if !ok {
+		t.Fatalf("Statements[1] is not ast.LetStatement. got=%T", exp.Consequence.Statements[1])
+	}
+
+	if !(testLetStatement(t, consequenceTwo, "i")) {
 		return
 	}
 }

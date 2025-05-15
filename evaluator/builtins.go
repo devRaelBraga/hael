@@ -136,6 +136,43 @@ func InitBuiltins(env *object.Environment) {
 				return NULL
 			},
 		},
+		"map": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				if len(args) != 2 {
+					newError("Expected exactly 2 arguments,got=%d", len(args))
+					return NULL
+				}
+
+				array, ok := args[0].(*object.Array)
+				if !ok {
+					newError("Expected array,got=%s", args[0].Type())
+					return NULL
+				}
+
+				fn, ok := args[1].(*object.Function)
+
+				if !ok {
+					newError("Expected Function, got=%s", args[1].Type())
+					return NULL
+				}
+
+				if len(fn.Parameters) != 1 {
+					newError("Function should have exactly 1 argument, got=%d", len(fn.Parameters))
+					return NULL
+				}
+
+				functionEnv := object.NewEnclosedEnvironment(env)
+				var result object.Array
+				if ok {
+					for _, item := range array.Elements {
+						functionEnv.Set(fn.Parameters[0].String(), item)
+						result.Elements = append(result.Elements, Eval(fn.Body, functionEnv))
+					}
+				}
+
+				return &result
+			},
+		},
 		"listenHTTP": &object.Builtin{
 			Fn: func(args ...object.Object) object.Object {
 				if len(args) != 2 {
@@ -318,6 +355,43 @@ func InitWASMBuiltins(env *object.Environment) {
 				copy(newElements, arr.Elements[start:end])
 
 				return &object.Array{Elements: newElements}
+			},
+		},
+		"map": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				if len(args) != 2 {
+					newError("Expected exactly 2 arguments,got=%d", len(args))
+					return NULL
+				}
+
+				array, ok := args[0].(*object.Array)
+				if !ok {
+					newError("Expected array,got=%s", args[0].Type())
+					return NULL
+				}
+
+				fn, ok := args[1].(*object.Function)
+
+				if !ok {
+					newError("Expected Function, got=%s", args[1].Type())
+					return NULL
+				}
+
+				if len(fn.Parameters) != 1 {
+					newError("Function should have exactly 1 argument, got=%d", len(fn.Parameters))
+					return NULL
+				}
+
+				functionEnv := object.NewEnclosedEnvironment(env)
+				var result object.Array
+				if ok {
+					for _, item := range array.Elements {
+						functionEnv.Set(fn.Parameters[0].String(), item)
+						result.Elements = append(result.Elements, Eval(fn.Body, functionEnv))
+					}
+				}
+
+				return &result
 			},
 		},
 		"print": &object.Builtin{

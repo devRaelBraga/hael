@@ -35,6 +35,11 @@ func TestNextToken(t *testing.T) {
 	"foo bar"
 	[1,2];
 	{"foo": "bar"}
+
+	while (i < 20) {
+		print(i)
+		$i = i + 1
+	}
 	`
 
 	tests := []struct {
